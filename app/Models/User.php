@@ -3,47 +3,55 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Relasi: User sebagai peminjam barang
+    public function borrowRequests()
+    {
+        return $this->hasMany(BorrowRequest::class, 'borrower_id');
+    }
+
+    // Relasi: User (Petugas/Admin) yang menyetujui peminjaman
+    public function approvedRequests()
+    {
+        return $this->hasMany(BorrowRequest::class, 'approved_by');
+    }
+
+    // Relasi: User (Petugas) yang menyerahkan barang
+    public function handedOverRequests()
+    {
+        return $this->hasMany(BorrowRequest::class, 'handed_over_by');
+    }
+
+    // Relasi: Pengecekan kondisi barang yang dilakukan oleh petugas
+    public function itemConditions()
+    {
+        return $this->hasMany(ItemCondition::class, 'checked_by');
     }
 }
