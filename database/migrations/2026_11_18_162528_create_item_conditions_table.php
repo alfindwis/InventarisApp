@@ -6,20 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('item_conditions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('borrow_detail_id')->constrained('borrow_details')->onDelete('cascade');
+            $table->foreignId('checked_by')->constrained('users')->onDelete('cascade');
+            $table->string('condition_before')->nullable();
+            $table->string('condition_after')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('item_conditions');
