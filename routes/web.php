@@ -6,9 +6,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route bawaan autentikasi Laravel (bisa disesuaikan dengan Breeze/Jetstream/Auth manual)
-Auth::routes();
-
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // ==========================================

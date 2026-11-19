@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Category;
+use Illuminate\Http\Request;
+
+class CategoryController extends Controller
+{
+    public function index()
+    {
+        $categories = Category::withCount('items')->latest()->get();
+        return view('categories.index', compact('categories'));
+    }
+
+    public function create()
+    {
+        return view('categories.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'category_name' => 'required|string|unique:categories,category_name|max:100',
+            'description' => 'nullable|string',
+        ]);
+
+        Category::create($validated);
+
+        return redirect()->route('categories.index')
+            ->with('success', 'Kategori berhasil dibuat.');
+    }
+
+    public function edit(Category $category)
+    {
+        return view('categories.edit', compact('category'));
+    }
+
+    public function update(Request $request, Category $category)
+    {
+        $validated = $request->validate([
+            'category_name' => 'required|string|max:100|unique:categories,category_name,' . $category->id,
+            'description' => 'nullable|string',
+        ]);
+
+        $category->update($validated);
+
+        return redirect()->route('categories.index')
+            ->with('success', 'Kategori berhasil diperbarui.');
+    }
+
+    public function destroy(Category $category)
+    {
+        $category->delete();
+
+        return redirect()->route('categories.index')
+            ->with('success', 'Kategori berhasil dihapus.');
+    }
+}
