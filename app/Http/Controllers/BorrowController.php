@@ -12,18 +12,25 @@ use Illuminate\Support\Facades\DB;
 
 class BorrowController extends Controller
 {
-    public function index()
+    // Daftar seluruh pengajuan untuk Admin
+    public function indexAdmin()
     {
-        $user = Auth::user();
+        $requests = BorrowRequest::with(['borrower', 'approvedBy', 'handedOverBy', 'details.item'])
+            ->latest()
+            ->get();
 
-        $query = BorrowRequest::with(['borrower', 'approvedBy', 'handedOverBy', 'details.item'])->latest();
+        return view('borrow.admin_index', compact('requests'));
+    }
 
-        if ($user->role === 'peminjam') {
-            $query->where('borrower_id', $user->id);
-        }
+    // Daftar riwayat peminjaman milik Peminjam yang sedang login
+    public function indexUser()
+    {
+        $requests = BorrowRequest::with(['approvedBy', 'handedOverBy', 'details.item'])
+            ->where('borrower_id', Auth::id())
+            ->latest()
+            ->get();
 
-        $requests = $query->get();
-        return view('borrow.index', compact('requests'));
+        return view('borrow.my_requests', compact('requests'));
     }
 
     public function create()
@@ -62,7 +69,7 @@ class BorrowController extends Controller
             }
         });
 
-        return redirect()->route('borrow.index')
+        return redirect()->route('borrow.myrequests')
             ->with('success', 'Pengajuan peminjaman terkirim.');
     }
 
